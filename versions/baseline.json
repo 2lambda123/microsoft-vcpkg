@@ -6480,6 +6480,10 @@
       "baseline": "0.3.18",
       "port-version": 1
     },
+    "onnxruntime": {
+      "baseline": "1.18.0",
+      "port-version": 0
+    },
     "onnxruntime-gpu": {
       "baseline": "1.18.0",
       "port-version": 0
