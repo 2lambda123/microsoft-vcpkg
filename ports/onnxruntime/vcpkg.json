@@ -69,11 +69,23 @@
   ],
   "features": {
     "cuda": {
-      "description": "Build ONNXRuntime unit tests",
+      "description": "Build with CUDA support",
       "dependencies": [
         "cuda",
         "cudnn",
         "nvidia-cutlass"
+      ]
+    },
+    "tensorrt": {
+      "description": "Build with TensorRT support",
+      "dependencies": [
+        {
+          "name": "onnxruntime",
+          "default-features": false,
+          "features": [
+            "cuda"
+          ]
+        }
       ]
     }
   }

@@ -8,6 +8,7 @@ vcpkg_from_github(
     PATCHES
         fix-cmake.patch
         fix-cmake-cuda.patch
+        fix-cmake-tensorrt.patch # TENSORRT_ROOT is not defined, use CUDAToolkit to search TensorRT
         fix-sources.patch
         fix-llvm-rc-unicode.patch
         fix-clang-cl-simd-compile.patch
@@ -66,6 +67,13 @@ vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
         cuda      onnxruntime_USE_MEMORY_EFFICIENT_ATTENTION
 )
 
+if("tensorrt" IN_LIST FEATURES)
+    if(DEFINED TENSORRT_ROOT)
+        message(STATUS "Using TensorRT: ${TENSORRT_ROOT}")
+        list(APPEND FEATURE_OPTIONS "-Donnxruntime_TENSORRT_HOME:PATH=${TENSORRT_ROOT}")
+    endif()
+endif()
+
 # see tools/ci_build/build.py
 vcpkg_cmake_configure(
     SOURCE_PATH "${SOURCE_PATH}/cmake"
@@ -108,8 +116,12 @@ vcpkg_cmake_configure(
         ORT_GIT_COMMIT
         ORT_GIT_BRANCH
 )
+
 if("cuda" IN_LIST FEATURES)
     vcpkg_cmake_build(TARGET onnxruntime_providers_cuda LOGFILE_BASE build-cuda)
+endif()
+if("tensorrt" IN_LIST FEATURES)
+    vcpkg_cmake_build(TARGET onnxruntime_providers_tensorrt LOGFILE_BASE build-tensorrt)
 endif()
 vcpkg_cmake_install()
 vcpkg_cmake_config_fixup(CONFIG_PATH lib/cmake/onnxruntime)
@@ -117,15 +129,22 @@ if(BUILD_SHARED)
     vcpkg_fixup_pkgconfig() # pkg_check_modules(libonnxruntime)
 endif()
 
-if("cuda" IN_LIST FEATURES)
+# cmake function which relocates the onnxruntime_providers_* library before vcpkg_copy_pdbs()
+function(relocate_ort_providers PROVIDER_NAME)
     if(VCPKG_TARGET_IS_WINDOWS AND (VCPKG_LIBRARY_LINKAGE STREQUAL "dynamic"))
-        # onnxruntime_providers_cuda is a shared module. relocate the binary
         # the target is expected to be used without the .lib files
-        file(RENAME "${CURRENT_PACKAGES_DIR}/debug/lib/onnxruntime_providers_cuda.dll"
-                    "${CURRENT_PACKAGES_DIR}/debug/bin/onnxruntime_providers_cuda.dll")
-        file(RENAME "${CURRENT_PACKAGES_DIR}/lib/onnxruntime_providers_cuda.dll"
-                    "${CURRENT_PACKAGES_DIR}/bin/onnxruntime_providers_cuda.dll")
+        file(RENAME "${CURRENT_PACKAGES_DIR}/debug/lib/${PROVIDER_NAME}.dll"
+                    "${CURRENT_PACKAGES_DIR}/debug/bin/${PROVIDER_NAME}.dll")
+        file(RENAME "${CURRENT_PACKAGES_DIR}/lib/${PROVIDER_NAME}.dll"
+                    "${CURRENT_PACKAGES_DIR}/bin/${PROVIDER_NAME}.dll")
     endif()
+endfunction()
+
+if("cuda" IN_LIST FEATURES)
+    relocate_ort_providers(onnxruntime_providers_cuda)
+endif()
+if("tensorrt" IN_LIST FEATURES)
+    relocate_ort_providers(onnxruntime_providers_tensorrt)
 endif()
 vcpkg_copy_pdbs()
 
