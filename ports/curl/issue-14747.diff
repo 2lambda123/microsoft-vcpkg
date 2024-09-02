@@ -1,0 +1,15 @@
+diff --git a/include/curl/curl.h b/include/curl/curl.h
+index 1609ff6..d39d978 100644
+--- a/include/curl/curl.h
++++ b/include/curl/curl.h
+@@ -1351,7 +1351,9 @@ typedef enum {
+   /* Max amount of cached alive connections */
+   CURLOPT(CURLOPT_MAXCONNECTS, CURLOPTTYPE_LONG, 71),
+ 
+-  /* 72 = OBSOLETE */
++  /* OBSOLETE, do not use! */
++  CURLOPT(CURLOPT_OBSOLETE72, CURLOPTTYPE_LONG, 72),
++
+   /* 73 = OBSOLETE */
+ 
+   /* Set to explicitly use a new connection for the upcoming transfer.
