@@ -9,6 +9,7 @@ vcpkg_from_github(
         # https://github.com/openvinotoolkit/openvino/pull/25937
         # onnx codegen cmake script taints source directory
         002-fix-onnx-codegen.patch
+        003-onnx-targets.patch # onnx 1.16.0 use namespace for its targets
     HEAD_REF master)
 
 vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
