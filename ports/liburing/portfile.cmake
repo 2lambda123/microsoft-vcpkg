@@ -9,6 +9,17 @@ vcpkg_from_github(
         disable-tests-and-examples.patch
 )
 
+# https://github.com/axboe/liburing/blob/liburing-2.7/.github/workflows/build.yml
+if(VCPKG_DETECTED_CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    set(liburing_extra_flags "-Wshorten-64-to-32")
+    set(extra_flags "-Wmissing-prototypes -Wstrict-prototypes -Wunreachable-code-loop-increment -Wunreachable-code -Wmissing-variable-declarations -Wextra-semi-stmt")
+endif()
+set(flags "-g -O3 -Wall -Wextra -Werror -Wno-sign-compare ${extra_flags}")
+set(ENV{CPPFLAGS} "$ENV{CPPFLAGS} -Werror")
+set(ENV{CFLAGS} "$ENV{CFLAGS} ${flags}")
+set(ENV{CXXFLAGS} "$ENV{CXXFLAGS} ${flags}")
+set(ENV{LIBURING_CFLAGS} "$ENV{LIBURING_CFLAGS} ${liburing_extra_flags}")
+
 # note: check ${SOURCE_PATH}/liburing.spec before updating configure options
 vcpkg_configure_make(
     SOURCE_PATH "${SOURCE_PATH}"
