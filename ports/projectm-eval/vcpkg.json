@@ -1,6 +1,7 @@
 {
   "name": "projectm-eval",
   "version": "1.0.0",
+  "port-version": 1,
   "description": "The projectM Expression Evaluation Library. A portable drop-in replacement of Milkdrop's \"ns-eel2\" expression parser for use in Milkdrop, projectM and other applications.",
   "homepage": "https://github.com/projectM-visualizer/projectm-eval",
   "license": "MIT",
@@ -13,5 +14,16 @@
       "name": "vcpkg-cmake-config",
       "host": true
     }
-  ]
+  ],
+  "default-features": [
+    {
+      "name": "ns-eel2",
+      "platform": "windows"
+    }
+  ],
+  "features": {
+    "ns-eel2": {
+      "description": "Build and install the ns-eel2 shim library and header for use with the original Milkdrop"
+    }
+  }
 }
